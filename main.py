@@ -5,12 +5,13 @@ from fastapi.responses import PlainTextResponse,HTMLResponse
 from starlette.responses import FileResponse
 import os
 from pathlib import Path
+from fastapi.staticfiles import StaticFiles
 
 class Item(BaseModel):
     name: str
 
 app = FastAPI()
-
+app.mount("/babag", StaticFiles(directory="babag"), name="babag")
 
 @app.post("/uploadfile/")
 async def create_upload_file(file: UploadFile | None = None):
@@ -34,10 +35,12 @@ async def create_item(item: Item):
 @app.get("/")
 async def root():
     paths = sorted(Path("./babag").iterdir(), key=os.path.getmtime)
-    
+    links =''
+    for i in paths:
+        links+=f'<a href="/babag/{i.name}">{i.name}<br>'
     content = f"""
 <body>
-{paths}
+{links}
 </body>
         """
     return HTMLResponse(content=content)
