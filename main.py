@@ -3,7 +3,6 @@ from fastapi import FastAPI, UploadFile
 from pydantic import BaseModel
 from fastapi.responses import PlainTextResponse
 from starlette.responses import FileResponse
-from typing import Union
 
 class Item(BaseModel):
     name: str
@@ -12,7 +11,7 @@ app = FastAPI()
 
 
 @app.post("/uploadfile/")
-async def create_upload_file(file: Union[UploadFile, None] = None):
+async def create_upload_file(file: UploadFile | None = None):
     if not file:
         return {"message": "No upload file sent"}
     else:
