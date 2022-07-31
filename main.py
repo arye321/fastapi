@@ -1,8 +1,10 @@
 # uvicorn main:app --reload
 from fastapi import FastAPI, UploadFile
 from pydantic import BaseModel
-from fastapi.responses import PlainTextResponse
+from fastapi.responses import PlainTextResponse,HTMLResponse
 from starlette.responses import FileResponse
+import os
+from pathlib import Path
 
 class Item(BaseModel):
     name: str
@@ -31,7 +33,14 @@ async def create_item(item: Item):
     
 @app.get("/")
 async def root():
-    return {"message": "Hello World"}
+    paths = sorted(Path("./babag").iterdir(), key=os.path.getmtime)
+    
+    content = f"""
+<body>
+{paths}
+</body>
+        """
+    return HTMLResponse(content=content)
 
 @app.get("/items/", response_class=PlainTextResponse)
 async def lol():
