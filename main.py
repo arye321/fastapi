@@ -1,21 +1,34 @@
-from fastapi import FastAPI
+# uvicorn main:app --reload
+from fastapi import FastAPI, UploadFile
 from pydantic import BaseModel
 from fastapi.responses import PlainTextResponse
 from starlette.responses import FileResponse
+from typing import Union
 
 class Item(BaseModel):
     name: str
-    description: str | None = None
-    price: float
-    tax: float | None = None
-
 
 app = FastAPI()
 
 
+@app.post("/uploadfile/")
+async def create_upload_file(file: Union[UploadFile, None] = None):
+    if not file:
+        return {"message": "No upload file sent"}
+    else:
+        try:
+            contents = await file.read()
+            with open(file.filename, 'wb') as f:
+                f.write(contents)
+        except Exception:
+            return {"message": "There was an error uploading the file"}
+        finally:
+            await file.close()
+        return {"filename": file.filename}
+
 @app.post("/items/", response_class=PlainTextResponse)
 async def create_item(item: Item):
-    return "ok"
+    return f"ok, {item.name}"
     
 @app.get("/")
 async def root():
